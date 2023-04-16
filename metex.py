@@ -1,7 +1,5 @@
 import sys
-
 from gui.window import MainWindow
-
 from PyQt5.QtWidgets import * 
 
 

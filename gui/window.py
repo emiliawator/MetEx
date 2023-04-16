@@ -6,7 +6,7 @@ class MainWindow(QMainWindow):
 
         super().__init__(parent)
 
-        self.setWindowTitle("METEX")
+        self.setWindowTitle("MetEx")
         self.resize(800, 600)
 
         self._createActions()
@@ -17,13 +17,14 @@ class MainWindow(QMainWindow):
     def open(self):
         global file_path
         path = QFileDialog.getOpenFileName(self, "Open")[0]
+        self._loadTable(path)
 
     def about(self):
         text = "<center>" \
             "<h3>Metadata extraction and edition tool</h3>" \
             "&#8291;" \
             "</center>"
-        QMessageBox.about(self, "About METEX", text)
+        QMessageBox.about(self, "About MetEx", text)
 
     def _createStatusBar(self):
         self.statusBar = self.statusBar()
@@ -83,4 +84,28 @@ class MainWindow(QMainWindow):
         
         self.setCentralWidget(self.tableWidget)
     
+    def _loadTable(self, path):
+        extension = path.split(".")[-1]
+        if extension in ["jpg", "png"]:
+            from backend.images import read
+            metadata = read(path)
+        elif extension == "pdf":
+            from backend.pdf import read
+            metadata = read(path)
+        elif extension == "mp3":
+            from backend.audio import read
+            metadata = read(path)
+        else:
+            self.statusBar.showMessage("File format not supported", 5000)
+            return
+
+        metadata = [(key, str(value)) for key, value in metadata.items()]
+
+        self.tableWidget.setRowCount(len(metadata))
+        self.tableWidget.setColumnCount(2)
+        for i, (key, value) in enumerate(metadata):
+            self.tableWidget.setItem(i, 0, QTableWidgetItem(key))
+            self.tableWidget.setItem(i, 1, QTableWidgetItem(value))
+
+        self.statusBar.showMessage("File loaded", 5000)
 
