@@ -86,13 +86,13 @@ class MainWindow(QMainWindow):
     
     def _loadTable(self, path):
         extension = path.split(".")[-1]
-        if extension in ["jpg", "png"]:
+        if extension in ['jpg', 'jpeg', 'png', 'tiff', 'tif']:
             from backend.images import read
             metadata = read(path)
-        elif extension == "pdf":
+        elif extension == 'pdf':
             from backend.pdf import read
             metadata = read(path)
-        elif extension == "mp3":
+        elif extension == 'mp3':
             from backend.audio import read
             metadata = read(path)
         else:

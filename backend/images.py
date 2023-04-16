@@ -1,11 +1,20 @@
 from exif import Image
+from PIL import Image as PILImage
 
 
 # read file metadata
 def read(path):
-    with open(path, 'rb') as image_file:
-        my_image = Image(image_file)
-    metadata = my_image.get_all()
+    extension = path.split('.')[-1].lower()
+    if extension in ['jpg', 'jpeg', 'tiff', 'tif']:
+        with open(path, 'rb') as image_file:
+            my_image = Image(image_file)
+        metadata = my_image.get_all()
+    elif extension == 'png':
+        with open(path, 'rb') as image_file:
+            pil_image = PILImage.open(image_file)
+            metadata = pil_image.info
+    else:
+        raise ValueError("File format not supported")
     return metadata
 
 # edit file metadata
