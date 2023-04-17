@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import * 
+from PyQt5.QtCore import * 
 
 
 class MainWindow(QMainWindow):
@@ -104,8 +105,13 @@ class MainWindow(QMainWindow):
         self.tableWidget.setRowCount(len(metadata))
         self.tableWidget.setColumnCount(2)
         for i, (key, value) in enumerate(metadata):
-            self.tableWidget.setItem(i, 0, QTableWidgetItem(key))
-            self.tableWidget.setItem(i, 1, QTableWidgetItem(value))
+            k = QTableWidgetItem(key)
+            k.setFlags(k.flags() & Qt.ItemIsEditable)
+            k.setForeground(Qt.black)
+            self.tableWidget.setItem(i, 0, k)
+            v = QTableWidgetItem(value)
+            v.setFlags(v.flags() | Qt.ItemIsEditable)
+            self.tableWidget.setItem(i, 1, v)
 
         self.statusBar.showMessage("File loaded", 5000)
 
