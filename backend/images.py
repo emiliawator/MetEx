@@ -29,7 +29,7 @@ def edit(path, key, new_value):
 def save(path, metadata):
     with open(path, 'rb') as image_file:
         my_image = Image(image_file)
-    for key, value in metadata.items():
+    for key, value in metadata:
         my_image.set(key, value)
     with open(path, 'wb') as new_image:
         new_image.write(my_image.get_file())

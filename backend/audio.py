@@ -19,7 +19,7 @@ def edit(path, key, new_value):
 # save file with new metadata
 def save(path, metadata):
     audio = MP3(path, ID3=EasyID3)
-    for key, value in metadata.items():
+    for key, value in metadata:
         audio.tags[key] = value
     audio.save()
     return audio

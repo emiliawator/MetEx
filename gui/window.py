@@ -1,8 +1,16 @@
 from PyQt5.QtWidgets import * 
 from PyQt5.QtCore import * 
 
+import backend.images
+import backend.audio
+import backend.pdf
+import gui.support
 
 class MainWindow(QMainWindow):
+    
+    file_type = gui.support.Filetype.NONE
+    file_path = None
+
     def __init__(self, parent=None):
 
         super().__init__(parent)
@@ -15,10 +23,24 @@ class MainWindow(QMainWindow):
         self._createTable()
         self._createStatusBar()
 
+
     def open(self):
-        global file_path
-        path = QFileDialog.getOpenFileName(self, "Open")[0]
-        self._loadTable(path)
+        self.file_path = QFileDialog.getOpenFileName(self, "Open")[0]
+        self._checkFileType()
+        self._loadTable()
+
+    def save(self):
+        metadata = []
+        for i in range(self.tableWidget.rowCount()):
+            metadata.append((self.tableWidget.item(i, 0).text(), self.tableWidget.item(i, 1).text()))
+        print(metadata)
+        match self.file_type:
+            case gui.support.Filetype.IMAGE:
+                backend.images.save(self.file_path, metadata)
+            case gui.support.Filetype.AUDIO:
+                backend.audio.save(self.file_path, metadata)
+            case gui.support.Filetype.PDF:
+                backend.pdf.save(self.file_path, metadata)
 
     def about(self):
         text = "<center>" \
@@ -34,6 +56,7 @@ class MainWindow(QMainWindow):
         self.statusBar.addWidget(self.discardButton)
 
         self.saveButton = QPushButton("Save")
+        self.saveButton.clicked.connect(self.save)
         self.exitButton = QPushButton("Exit")
         self.exitButton.clicked.connect(self.close)
         self.statusBar.addAction(self.exitAction)
@@ -55,8 +78,9 @@ class MainWindow(QMainWindow):
         self.openAction = QAction("&Open", self)
         self.openAction.setShortcut("Ctrl+O")
         self.openAction.triggered.connect(self.open)
-        self.saveAction = QAction("&Save As", self)
+        self.saveAction = QAction("&Save", self)
         self.saveAction.setShortcut("Ctrl+S")
+        self.saveAction.triggered.connect(self.save)
         self.exitAction = QAction("&Exit", self)
         self.exitAction.setShortcut("Ctrl+Q")
         self.exitAction.triggered.connect(self.close)
@@ -85,20 +109,28 @@ class MainWindow(QMainWindow):
         
         self.setCentralWidget(self.tableWidget)
     
-    def _loadTable(self, path):
-        extension = path.split(".")[-1]
+    def _checkFileType(self):
+        extension = self.file_path.split(".")[-1]
         if extension in ['jpg', 'jpeg', 'png', 'tiff', 'tif']:
-            from backend.images import read
-            metadata = read(path)
+            self.file_type = gui.support.Filetype.IMAGE
         elif extension == 'pdf':
-            from backend.pdf import read
-            metadata = read(path)
+            self.file_type = gui.support.Filetype.PDF
         elif extension == 'mp3':
-            from backend.audio import read
-            metadata = read(path)
+            self.file_type = gui.support.Filetype.AUDIO
         else:
-            self.statusBar.showMessage("File format not supported", 5000)
-            return
+            self.file_type = gui.support.Filetype.NONE
+
+    def _loadTable(self):
+        match self.file_type:
+            case gui.support.Filetype.IMAGE:
+                metadata = backend.images.read(self.file_path)
+            case gui.support.Filetype.AUDIO:
+                metadata = backend.audio.read(self.file_path)
+            case gui.support.Filetype.PDF:
+                metadata = backend.pdf.read(self.file_path)
+            case '_':
+                self.statusBar.showMessage("File format not supported", 5000)
+                return
 
         metadata = [(key, str(value)) for key, value in metadata.items()]
 
