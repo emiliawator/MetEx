@@ -1,2 +1,6 @@
+exif==1.6.0
+mutagen==1.46.0
+Pillow==9.5.0
+PyPDF2==3.0.1
 PyQt5==5.15.9
 PyQt5_sip==12.11.1
