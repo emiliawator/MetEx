@@ -6,6 +6,9 @@ import backend.audio
 import backend.pdf
 import gui.support
 
+
+datatypes = []
+
 class MainWindow(QMainWindow):
     
     file_type = gui.support.Filetype.NONE
@@ -23,7 +26,6 @@ class MainWindow(QMainWindow):
         self._createTable()
         self._createStatusBar()
 
-
     def open(self):
         self.file_path = QFileDialog.getOpenFileName(self, "Open")[0]
         self._checkFileType()
@@ -36,11 +38,11 @@ class MainWindow(QMainWindow):
         print(metadata)
         match self.file_type:
             case gui.support.Filetype.IMAGE:
-                backend.images.save(self.file_path, metadata)
+                backend.images.save(self.file_path, metadata, self.datatypes)
             case gui.support.Filetype.AUDIO:
-                backend.audio.save(self.file_path, metadata)
+                backend.audio.save(self.file_path, metadata, self.datatypes)
             case gui.support.Filetype.PDF:
-                backend.pdf.save(self.file_path, metadata)
+                backend.pdf.save(self.file_path, metadata, self.datatypes)
 
     def about(self):
         text = "<center>" \
@@ -123,25 +125,27 @@ class MainWindow(QMainWindow):
     def _loadTable(self):
         match self.file_type:
             case gui.support.Filetype.IMAGE:
-                metadata = backend.images.read(self.file_path)
+                metadata, datatypes = backend.images.read(self.file_path)
+                self.datatypes = datatypes
             case gui.support.Filetype.AUDIO:
-                metadata = backend.audio.read(self.file_path)
+                metadata, datatypes = backend.audio.read(self.file_path)
+                self.datatypes = datatypes
             case gui.support.Filetype.PDF:
-                metadata = backend.pdf.read(self.file_path)
+                metadata, datatypes = backend.pdf.read(self.file_path)
+                self.datatypes = datatypes
             case '_':
                 self.statusBar.showMessage("File format not supported", 5000)
                 return
-
-        metadata = [(key, str(value)) for key, value in metadata.items()]
-
+            
+        print(metadata, datatypes)
         self.tableWidget.setRowCount(len(metadata))
         self.tableWidget.setColumnCount(2)
         for i, (key, value) in enumerate(metadata):
-            k = QTableWidgetItem(key)
+            k = QTableWidgetItem(str(key))
             k.setFlags(k.flags() & Qt.ItemIsEditable)
             k.setForeground(Qt.black)
             self.tableWidget.setItem(i, 0, k)
-            v = QTableWidgetItem(value)
+            v = QTableWidgetItem(str(value))
             v.setFlags(v.flags() | Qt.ItemIsEditable)
             self.tableWidget.setItem(i, 1, v)
 
