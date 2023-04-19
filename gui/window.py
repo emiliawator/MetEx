@@ -4,6 +4,7 @@ from PyQt5.QtCore import *
 import backend.images
 import backend.audio
 import backend.pdf
+import backend.docx
 import gui.support
 
 
@@ -43,6 +44,8 @@ class MainWindow(QMainWindow):
                 backend.audio.save(self.file_path, metadata, self.datatypes)
             case gui.support.Filetype.PDF:
                 backend.pdf.save(self.file_path, metadata, self.datatypes)
+            case gui.support.Filetype.WORD:
+                backend.docx.save(metadata, self.file_path, self.file_path, self.datatypes)
 
     def about(self):
         text = "<center>" \
@@ -119,6 +122,8 @@ class MainWindow(QMainWindow):
             self.file_type = gui.support.Filetype.PDF
         elif extension == 'mp3':
             self.file_type = gui.support.Filetype.AUDIO
+        elif extension == 'docx':
+            self.file_type = gui.support.Filetype.WORD
         else:
             self.file_type = gui.support.Filetype.NONE
 
@@ -132,6 +137,9 @@ class MainWindow(QMainWindow):
                 self.datatypes = datatypes
             case gui.support.Filetype.PDF:
                 metadata, datatypes = backend.pdf.read(self.file_path)
+                self.datatypes = datatypes
+            case gui.support.Filetype.WORD:
+                metadata, datatypes = backend.docx.read(self.file_path)
                 self.datatypes = datatypes
             case '_':
                 self.statusBar.showMessage("File format not supported", 5000)

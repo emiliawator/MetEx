@@ -9,3 +9,5 @@ class Filetype(Enum):
     IMAGE = 2
 
     PDF = 3
+
+    WORD = 4
