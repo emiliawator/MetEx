@@ -1,5 +1,5 @@
 # docx extension
-# todo - "None" field not supported by datetime type?
+# todo - "None" field not supported by datetime type? how to clear date???
 
 import os
 import docx
@@ -24,9 +24,9 @@ def read(filepath):
             val = getattr(prop, d) # returns a value of a property
             if isinstance(val, datetime):
                 val = val.strftime("%Y-%m-%d %H:%M:%S")
-                datatypes.append("data")
+                datatypes.append("date")
             elif val is None: # very bad temp solution
-                datatypes.append("data")
+                datatypes.append("date")
             elif isinstance(val, int):
                 datatypes.append("int")
             else:
@@ -52,15 +52,17 @@ def save(newlist, filepath, newfilepath, datatypes):
     i = 0
     for d in dir(prop):
         if not d.startswith('_'):
-            if notuplelist[i][1] is not None: # what if it is none? (e.g. cleared)
-                if datatypes[i] == "data":
-                    if notuplelist[i][1] != None:
-                        notuplelist[i][1] = datetime.strptime(notuplelist[i][1], "%Y-%m-%d %H:%M:%S")
-                    setattr(prop, d, (notuplelist[i][1]))
-                elif datatypes[i] == "int":
-                    setattr(prop, d, (int)(notuplelist[i][1]))
-                else:
-                    setattr(prop, d, notuplelist[i][1])
+            if datatypes[i] == "date":
+                if notuplelist[i][1] != "None":
+                    notuplelist[i][1] = datetime.strptime(notuplelist[i][1], "%Y-%m-%d %H:%M:%S")
+                else: # if None by default
+                    i+=1 
+                    continue
+                setattr(prop, d, (notuplelist[i][1]))
+            elif datatypes[i] == "int":
+                setattr(prop, d, (int)(notuplelist[i][1]))
+            else:
+                setattr(prop, d, notuplelist[i][1])
             i += 1
 
     doc.save(newfilepath)
