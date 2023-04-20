@@ -6,6 +6,7 @@ import backend.audio
 import backend.pdf
 import backend.docx
 import backend.xlsx
+import backend.pptx
 import gui.support
 
 
@@ -49,6 +50,8 @@ class MainWindow(QMainWindow):
                 backend.docx.save(metadata, self.file_path, self.file_path, self.datatypes)
             case gui.support.Filetype.EXCEL:
                 backend.xlsx.save(metadata, self.file_path, self.file_path, self.datatypes)
+            case gui.support.Filetype.PPTX:
+                backend.pptx.save(metadata, self.file_path, self.file_path, self.datatypes)
 
     def about(self):
         text = "<center>" \
@@ -129,6 +132,8 @@ class MainWindow(QMainWindow):
             self.file_type = gui.support.Filetype.WORD
         elif extension == 'xlsx':
             self.file_type = gui.support.Filetype.EXCEL
+        elif extension == 'pptx':
+            self.file_type = gui.support.Filetype.PPTX
         else:
             self.file_type = gui.support.Filetype.NONE
 
@@ -148,6 +153,10 @@ class MainWindow(QMainWindow):
                 self.datatypes = datatypes
             case gui.support.Filetype.EXCEL:
                 metadata = backend.xlsx.read(self.file_path)
+                datatypes = None
+                self.datatypes = datatypes
+            case gui.support.Filetype.PPTX:
+                metadata = backend.pptx.read(self.file_path)
                 datatypes = None
                 self.datatypes = datatypes
             case '_':

@@ -1,5 +1,7 @@
 # docx extension
+
 # todo - "None" field not supported by datetime type? how to clear date??? (clear all problem)
+# save and read method as in xlsx?
 
 import docx
 from datetime import datetime
