@@ -1,7 +1,6 @@
 # docx extension
-# todo - "None" field not supported by datetime type? how to clear date???
+# todo - "None" field not supported by datetime type? how to clear date??? (clear all problem)
 
-import os
 import docx
 from datetime import datetime
 
@@ -25,7 +24,7 @@ def read(filepath):
             if isinstance(val, datetime):
                 val = val.strftime("%Y-%m-%d %H:%M:%S")
                 datatypes.append("date")
-            elif val is None: # very bad temp solution
+            elif val is None: # very bad temp solution, better is to just use a position of a field
                 datatypes.append("date")
             elif isinstance(val, int):
                 datatypes.append("int")

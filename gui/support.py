@@ -11,3 +11,7 @@ class Filetype(Enum):
     PDF = 3
 
     WORD = 4
+
+    EXCEL = 5
+
+    PPTX = 6

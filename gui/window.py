@@ -5,6 +5,7 @@ import backend.images
 import backend.audio
 import backend.pdf
 import backend.docx
+import backend.xlsx
 import gui.support
 
 
@@ -46,6 +47,8 @@ class MainWindow(QMainWindow):
                 backend.pdf.save(self.file_path, metadata, self.datatypes)
             case gui.support.Filetype.WORD:
                 backend.docx.save(metadata, self.file_path, self.file_path, self.datatypes)
+            case gui.support.Filetype.EXCEL:
+                backend.xlsx.save(metadata, self.file_path, self.file_path, self.datatypes)
 
     def about(self):
         text = "<center>" \
@@ -124,6 +127,8 @@ class MainWindow(QMainWindow):
             self.file_type = gui.support.Filetype.AUDIO
         elif extension == 'docx':
             self.file_type = gui.support.Filetype.WORD
+        elif extension == 'xlsx':
+            self.file_type = gui.support.Filetype.EXCEL
         else:
             self.file_type = gui.support.Filetype.NONE
 
@@ -140,6 +145,10 @@ class MainWindow(QMainWindow):
                 self.datatypes = datatypes
             case gui.support.Filetype.WORD:
                 metadata, datatypes = backend.docx.read(self.file_path)
+                self.datatypes = datatypes
+            case gui.support.Filetype.EXCEL:
+                metadata = backend.xlsx.read(self.file_path)
+                datatypes = None
                 self.datatypes = datatypes
             case '_':
                 self.statusBar.showMessage("File format not supported", 5000)
