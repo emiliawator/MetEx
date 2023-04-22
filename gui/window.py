@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import * 
 from PyQt5.QtCore import * 
+from PyQt5.QtGui import *
 
 import backend.images
 import backend.audio
@@ -26,7 +27,7 @@ class MainWindow(QMainWindow):
 
         self._createActions()
         self._createMenuBar()
-        self._createTable()
+        self._createWelcomePage()
         self._createStatusBar()
 
     def open(self):
@@ -84,6 +85,7 @@ class MainWindow(QMainWindow):
         optionsMenu.addAction(self.undoAction)
         helpMenu = menuBar.addMenu("&Help")
         helpMenu.addAction(self.aboutAction)
+        self.setWindowIcon(QIcon("icons/logo.png"))
 
     def _createActions(self):
         self.openAction = QAction("&Open", self)
@@ -101,24 +103,47 @@ class MainWindow(QMainWindow):
         self.aboutAction.setShortcut("Ctrl+I")
         self.aboutAction.triggered.connect(self.about)
 
+    def _createWelcomePage(self):
+        self.welcomeSite = QWidget()
+        self.welcomeSiteLayout = QVBoxLayout()
+        self.welcomeSite.setLayout(self.welcomeSiteLayout)
+        self.welcomeSite.setFixedHeight(500)
+
+        text1 = QLabel("Welcome to MetEx!")
+        text1.setAlignment(Qt.AlignCenter)
+        text1.setFixedHeight(100)
+        font1 = QFont("Cascadia Code", 40, QFont.Bold)
+        text1.setFont(font1)
+        self.welcomeSiteLayout.addWidget(text1)
+        
+        image = QLabel(self)
+        pixmap = QPixmap("icons/logo.png")
+        pixmap = pixmap.scaled(300, 300, Qt.KeepAspectRatio, Qt.FastTransformation)
+        image.setPixmap(pixmap)
+        image.setAlignment(Qt.AlignCenter)
+        self.welcomeSiteLayout.addWidget(image)
+        
+        text2 = QLabel("Please open a file to start editing metadata.")
+        text2.setAlignment(Qt.AlignCenter)
+        text2.setFixedHeight(80)
+        font2 = QFont("Cascadia Code", 20)
+        text2.setFont(font2)
+        self.welcomeSiteLayout.addWidget(text2, alignment=Qt.AlignCenter)
+
+        button = QPushButton("Open file")
+        button.clicked.connect(self.open)
+        button.setFixedSize(300, 40)
+        self.welcomeSiteLayout.addWidget(button, alignment=Qt.AlignCenter)
+
+        self.setCentralWidget(self.welcomeSite)
+
     def _createTable(self): # filled with test data
         self.tableWidget = QTableWidget()
         self.tableWidget.setRowCount(10)
-        self.tableWidget.setColumnCount(2)  
-  
-        self.tableWidget.setItem(0,0, QTableWidgetItem("Name"))
-        self.tableWidget.setItem(0,1, QTableWidgetItem("City"))
-        self.tableWidget.setItem(1,0, QTableWidgetItem("Aloysius"))
-        self.tableWidget.setItem(1,1, QTableWidgetItem("Indore"))
-        self.tableWidget.setItem(2,0, QTableWidgetItem("Alan"))
-        self.tableWidget.setItem(2,1, QTableWidgetItem("Bhopal"))
-        self.tableWidget.setItem(3,0, QTableWidgetItem("Arnavi"))
-        self.tableWidget.setItem(3,1, QTableWidgetItem("Mandsaur"))
+        self.tableWidget.setColumnCount(2)
    
         self.tableWidget.horizontalHeader().setStretchLastSection(True)
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        
-        self.setCentralWidget(self.tableWidget)
     
     def _checkFileType(self):
         extension = self.file_path.split(".")[-1]
@@ -138,6 +163,8 @@ class MainWindow(QMainWindow):
             self.file_type = gui.support.Filetype.NONE
 
     def _loadTable(self):
+        self._createTable()
+        self.setCentralWidget(self.tableWidget)
         match self.file_type:
             case gui.support.Filetype.IMAGE:
                 metadata, datatypes = backend.images.read(self.file_path)
@@ -159,10 +186,10 @@ class MainWindow(QMainWindow):
                 metadata = backend.pptx.read(self.file_path)
                 datatypes = None
                 self.datatypes = datatypes
-            case '_':
+            case gui.support.Filetype.NONE:
                 self.statusBar.showMessage("File format not supported", 5000)
                 return
-            
+
         print(metadata, datatypes)
         self.tableWidget.setRowCount(len(metadata))
         self.tableWidget.setColumnCount(2)
