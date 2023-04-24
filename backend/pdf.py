@@ -5,36 +5,20 @@ from PyPDF2 import PdfReader, PdfWriter
 def read(path):
     reader = PdfReader(path)
     metadata = reader.metadata
-    return export_data(metadata)
-
-# edit file metadata
-def edit(path, key, new_value):
-    reader = PdfReader(path)
-    metadata = reader.metadata
-    metadata[key] = new_value
+    metadata = [(key, value) for key, value in metadata.items()]
+    for i in range(len(metadata)):
+        metadata[i] = (metadata[i][0].replace('/', ''), metadata[i][1])
     return metadata
 
 # save file with new metadata
-def save(path, metadata, datatypes):
-    # metadata = import_data(data, datatypes)
+def save(path, metadata):
     reader = PdfReader(path)
     writer = PdfWriter()
     for page in reader.pages:
         writer.add_page(page)
-    writer.add_metadata(metadata)
+    for key, value in metadata:
+        key = '/' + key
+        writer.add_metadata({key: value})
     with open(path, 'wb') as f:
         writer.write(f)
-    return f
-
-# convert metadata into dictionary
-def export_data(metadata):
-    datatypes = [type(item[0]) for item in metadata.items()]
-    data = [(key, value) for key, value in metadata.items()]
-    return data, datatypes
-
-# convert from dictionary back to original format with correct data types
-def import_data(data, datatypes):
-    metadata = [(key, value) for key, value in data]
-    for i in range(len(metadata)):
-        metadata[i] = (metadata[i][0], datatypes[i](metadata[i][1]))
-    return metadata
+    return

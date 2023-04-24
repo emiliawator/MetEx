@@ -42,11 +42,11 @@ class MainWindow(QMainWindow):
         print(metadata)
         match self.file_type:
             case gui.support.Filetype.IMAGE:
-                backend.images.save(self.file_path, metadata, self.datatypes)
+                backend.images.save(self.file_path, metadata)
             case gui.support.Filetype.AUDIO:
-                backend.audio.save(self.file_path, metadata, self.datatypes)
+                backend.audio.save(self.file_path, metadata)
             case gui.support.Filetype.PDF:
-                backend.pdf.save(self.file_path, metadata, self.datatypes)
+                backend.pdf.save(self.file_path, metadata)
             case gui.support.Filetype.WORD:
                 backend.docx.save(metadata, self.file_path, self.file_path, self.datatypes)
             case gui.support.Filetype.EXCEL:
@@ -109,9 +109,13 @@ class MainWindow(QMainWindow):
         self.welcomeSite.setLayout(self.welcomeSiteLayout)
         self.welcomeSite.setFixedHeight(500)
 
+        empty = QLabel()
+        empty.setFixedHeight(10)
+        self.welcomeSiteLayout.addWidget(empty)
+
         text1 = QLabel("Welcome to MetEx!")
         text1.setAlignment(Qt.AlignCenter)
-        text1.setFixedHeight(100)
+        text1.setFixedHeight(120)
         font1 = QFont("Cascadia Code", 40, QFont.Bold)
         text1.setFont(font1)
         self.welcomeSiteLayout.addWidget(text1)
@@ -167,14 +171,11 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.tableWidget)
         match self.file_type:
             case gui.support.Filetype.IMAGE:
-                metadata, datatypes = backend.images.read(self.file_path)
-                self.datatypes = datatypes
+                metadata = backend.images.read(self.file_path)
             case gui.support.Filetype.AUDIO:
-                metadata, datatypes = backend.audio.read(self.file_path)
-                self.datatypes = datatypes
+                metadata = backend.audio.read(self.file_path)
             case gui.support.Filetype.PDF:
-                metadata, datatypes = backend.pdf.read(self.file_path)
-                self.datatypes = datatypes
+                metadata = backend.pdf.read(self.file_path)
             case gui.support.Filetype.WORD:
                 metadata, datatypes = backend.docx.read(self.file_path)
                 self.datatypes = datatypes
@@ -190,7 +191,6 @@ class MainWindow(QMainWindow):
                 self.statusBar.showMessage("File format not supported", 5000)
                 return
 
-        print(metadata, datatypes)
         self.tableWidget.setRowCount(len(metadata))
         self.tableWidget.setColumnCount(2)
         for i, (key, value) in enumerate(metadata):
