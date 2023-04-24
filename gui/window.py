@@ -30,6 +30,7 @@ class MainWindow(QMainWindow):
         self._createMenuBar()
         self._createWelcomePage()
         self._createStatusBar()
+        self.statusBar.hide()
 
     def open(self):
         self.file_path = QFileDialog.getOpenFileName(self, "Open")[0]
@@ -158,7 +159,7 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(self.welcomeSite)
 
-    def _createTable(self): # filled with test data
+    def _createTable(self):
         self.tableWidget = QTableWidget()
         self.tableWidget.setRowCount(10)
         self.tableWidget.setColumnCount(2)
@@ -190,6 +191,7 @@ class MainWindow(QMainWindow):
     def _loadTable(self):
         self._createTable()
         self.setCentralWidget(self.tableWidget)
+        self.statusBar.show()
         match self.file_type:
             case gui.support.Filetype.IMAGE:
                 metadata, readonly = backend.images.read(self.file_path)
