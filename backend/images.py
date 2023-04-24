@@ -9,39 +9,50 @@ def read(path):
             exif_image = Image(image_file)
         metadata = exif_image.get_all()
     elif extension == 'png':
-        with open(path, 'rb') as image_file:
-            pil_image = PILImage.open(image_file)
-        metadata = pil_image.info
+        raise ValueError("File format not supported")
     else:
         raise ValueError("File format not supported")
-    metadata = [(key, value) for key, value in metadata.items()]
-    return metadata
+    metadata = [(key, str(value)) for key, value in metadata.items()]
+    readonly = find_readonly(path, metadata)
+    return metadata, readonly
 
-# save file with new metadata
-def save(path, metadata):
-    errors = []
-
+# find read-only metadata
+def find_readonly(path, metadata):
+    readonly = []
     extension = path.split('.')[-1].lower()
     if extension in ['jpg', 'jpeg', 'tiff', 'tif']:
         with open(path, 'rb') as image_file:
             exif_image = Image(image_file)
-        # excluded_tags = ['exif_version']
         for key, value in metadata:
             try: value = eval(value)
             except: value = str(value)
-            print(key, value, type(value))
             try: exif_image.set(key, value)
-            except: errors.append(key)
+            except: readonly.append(key)
         with open(path, 'wb') as new_image:
             new_image.write(exif_image.get_file())
     elif extension == 'png':
-        with PILImage.open(path) as pil_image:
-            for key, value in metadata:
-                try: value = eval(value)
-                except: value = str(value)
-                pil_image.info[key] = value
-            pil_image.save(path, "PNG")
+        raise ValueError("File format not supported")
     else:
         raise ValueError("File format not supported")
-    
+    return readonly
+
+# save file with new metadata
+def save(path, metadata, readonly):
+    errors = []
+    extension = path.split('.')[-1].lower()
+    if extension in ['jpg', 'jpeg', 'tiff', 'tif']:
+        with open(path, 'rb') as image_file:
+            exif_image = Image(image_file)
+        for key, value in metadata:
+            try: value = eval(value)
+            except: value = str(value)
+            if key not in readonly:
+                try: exif_image.set(key, value)
+                except: errors.append(key)
+        with open(path, 'wb') as new_image:
+            new_image.write(exif_image.get_file())
+    elif extension == 'png':
+        raise ValueError("File format not supported")
+    else:
+        raise ValueError("File format not supported")
     return errors

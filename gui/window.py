@@ -12,6 +12,7 @@ import gui.support
 
 
 datatypes = []
+readonly = [] # read-only metadata keys for current file
 
 class MainWindow(QMainWindow):
     
@@ -42,7 +43,7 @@ class MainWindow(QMainWindow):
         print(metadata)
         match self.file_type:
             case gui.support.Filetype.IMAGE:
-                errors = backend.images.save(self.file_path, metadata)
+                errors = backend.images.save(self.file_path, metadata, self.readonly)
             case gui.support.Filetype.AUDIO:
                 errors = backend.audio.save(self.file_path, metadata)
             case gui.support.Filetype.PDF:
@@ -151,6 +152,10 @@ class MainWindow(QMainWindow):
         self.tableWidget = QTableWidget()
         self.tableWidget.setRowCount(10)
         self.tableWidget.setColumnCount(2)
+        self.tableWidget.setHorizontalHeaderLabels(["Key", "Value"])
+
+        self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section { background-color: #d9e6cf; }")
+        self.tableWidget.verticalHeader().setStyleSheet("QHeaderView::section { background-color: #d9e6cf; }")
    
         self.tableWidget.horizontalHeader().setStretchLastSection(True)
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -177,20 +182,26 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.tableWidget)
         match self.file_type:
             case gui.support.Filetype.IMAGE:
-                metadata = backend.images.read(self.file_path)
+                metadata, readonly = backend.images.read(self.file_path)
+                self.readonly = readonly
             case gui.support.Filetype.AUDIO:
                 metadata = backend.audio.read(self.file_path)
+                self.readonly = []
             case gui.support.Filetype.PDF:
                 metadata = backend.pdf.read(self.file_path)
+                self.readonly = []
             case gui.support.Filetype.WORD:
                 metadata, datatypes = backend.docx.read(self.file_path)
+                self.readonly = []
                 self.datatypes = datatypes
             case gui.support.Filetype.EXCEL:
                 metadata = backend.xlsx.read(self.file_path)
+                self.readonly = []
                 datatypes = None
                 self.datatypes = datatypes
             case gui.support.Filetype.PPTX:
                 metadata = backend.pptx.read(self.file_path)
+                self.readonly = []
                 datatypes = None
                 self.datatypes = datatypes
             case gui.support.Filetype.NONE:
@@ -199,14 +210,22 @@ class MainWindow(QMainWindow):
 
         self.tableWidget.setRowCount(len(metadata))
         self.tableWidget.setColumnCount(2)
+
         for i, (key, value) in enumerate(metadata):
             k = QTableWidgetItem(str(key))
             k.setFlags(k.flags() & Qt.ItemIsEditable)
             k.setForeground(Qt.black)
             self.tableWidget.setItem(i, 0, k)
+
             v = QTableWidgetItem(str(value))
-            v.setFlags(v.flags() | Qt.ItemIsEditable)
-            self.tableWidget.setItem(i, 1, v)
+            if key in self.readonly:
+                v.setFlags(v.flags() & Qt.ItemIsEditable)
+                v.setForeground(Qt.black)
+                v.setBackground(QColor(235, 235, 235)) #ebebeb
+                k.setBackground(QColor(235, 235, 235)) #ebebeb
+            else:
+                v.setFlags(v.flags() | Qt.ItemIsEditable)
+            self.tableWidget.setItem(i, 1, v)  
 
         self.statusBar.showMessage("File loaded", 5000)
 

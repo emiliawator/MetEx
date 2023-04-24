@@ -13,7 +13,6 @@ def read(path):
 # save file with new metadata
 def save(path, metadata):
     errors = []
-
     reader = PdfReader(path)
     writer = PdfWriter()
     for page in reader.pages:
@@ -24,5 +23,4 @@ def save(path, metadata):
         except: errors.append(key)
     with open(path, 'wb') as f:
         writer.write(f)
-
     return errors
