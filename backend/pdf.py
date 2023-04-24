@@ -12,13 +12,17 @@ def read(path):
 
 # save file with new metadata
 def save(path, metadata):
+    errors = []
+
     reader = PdfReader(path)
     writer = PdfWriter()
     for page in reader.pages:
         writer.add_page(page)
     for key, value in metadata:
         key = '/' + key
-        writer.add_metadata({key: value})
+        try: writer.add_metadata({key: value})
+        except: errors.append(key)
     with open(path, 'wb') as f:
         writer.write(f)
-    return
+
+    return errors

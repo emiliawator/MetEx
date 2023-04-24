@@ -12,8 +12,13 @@ def read(path):
 
 # save file with new set of metadata
 def save(path, metadata):
+    errors = []
+
     audio = MP3(path, ID3=EasyID3)
     audio.delete()
     for key, value in metadata:
-        audio.tags[key] = value
+        try: audio.tags[key] = value
+        except: errors.append(key)
     audio.save()
+
+    return errors

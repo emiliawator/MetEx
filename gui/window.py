@@ -42,17 +42,23 @@ class MainWindow(QMainWindow):
         print(metadata)
         match self.file_type:
             case gui.support.Filetype.IMAGE:
-                backend.images.save(self.file_path, metadata)
+                errors = backend.images.save(self.file_path, metadata)
             case gui.support.Filetype.AUDIO:
-                backend.audio.save(self.file_path, metadata)
+                errors = backend.audio.save(self.file_path, metadata)
             case gui.support.Filetype.PDF:
-                backend.pdf.save(self.file_path, metadata)
+                errors = backend.pdf.save(self.file_path, metadata)
             case gui.support.Filetype.WORD:
-                backend.docx.save(metadata, self.file_path, self.file_path, self.datatypes)
+                errors = backend.docx.save(metadata, self.file_path, self.file_path, self.datatypes)
             case gui.support.Filetype.EXCEL:
-                backend.xlsx.save(metadata, self.file_path, self.file_path, self.datatypes)
+                errors = backend.xlsx.save(metadata, self.file_path, self.file_path, self.datatypes)
             case gui.support.Filetype.PPTX:
-                backend.pptx.save(metadata, self.file_path, self.file_path, self.datatypes)
+                errors = backend.pptx.save(metadata, self.file_path, self.file_path, self.datatypes)
+
+        if errors:
+            message = "The following metadata could not be saved:\n"
+            for error in errors:
+                message += "• " + error + "\n"
+            QMessageBox.warning(self, "Error", message)
 
     def about(self):
         text = "<center>" \
