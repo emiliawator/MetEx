@@ -62,10 +62,20 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Error", message)
 
     def about(self):
-        text = "<center>" \
-            "<h3>Metadata extraction and edition tool</h3>" \
-            "&#8291;" \
-            "</center>"
+        text = "" \
+            "<h3>About MetEx</h3>" \
+            "<p>MetEx is a metadata extraction and edition tool. It works with images, audio files and PDFs, as well as some of the Microsoft Office files.</p>" \
+            "<p>Currently supported file types are:</p>" \
+            "<ul>" \
+            "<li>Images: JPG, JPEG, TIF, TIFF</li>" \
+            "<li>Audio: MP3</li>" \
+            "<li>PDF</li>" \
+            "<li>Microsoft Word: DOCX</li>" \
+            "<li>Microsoft Excel: XLSX</li>" \
+            "<li>Microsoft PowerPoint: PPTX</li>" \
+            "</ul>" \
+            "<p>MetEx is free and open source software. It is distributed under the MIT license. For more information, visit <a href=https://github.com/emiliawator/METEX>MetEx GitHub</a>.</p>" \
+            "&#8291;"
         QMessageBox.about(self, "About MetEx", text)
 
     def _createStatusBar(self):
@@ -129,10 +139,10 @@ class MainWindow(QMainWindow):
         
         image = QLabel(self)
         pixmap = QPixmap("icons/logo.png")
-        pixmap = pixmap.scaled(300, 300, Qt.KeepAspectRatio, Qt.FastTransformation)
+        pixmap = pixmap.scaled(300, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         image.setPixmap(pixmap)
-        image.setAlignment(Qt.AlignCenter)
-        self.welcomeSiteLayout.addWidget(image)
+        image.setFixedSize(pixmap.width(), pixmap.height())
+        self.welcomeSiteLayout.addWidget(image, alignment=Qt.AlignCenter)
         
         text2 = QLabel("Please open a file to start editing metadata.")
         text2.setAlignment(Qt.AlignCenter)
