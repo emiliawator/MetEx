@@ -11,7 +11,6 @@ import backend.pptx
 import gui.support
 
 
-datatypes = []
 readonly = [] # read-only metadata keys for current file
 
 class MainWindow(QMainWindow):
@@ -50,17 +49,16 @@ class MainWindow(QMainWindow):
             case gui.support.Filetype.PDF:
                 errors = backend.pdf.save(self.file_path, metadata)
             case gui.support.Filetype.WORD:
-                errors = backend.docx.save(metadata, self.file_path, self.file_path, self.datatypes)
+                errors = backend.docx.save(metadata, self.file_path, self.file_path)
             case gui.support.Filetype.EXCEL:
-                errors = backend.xlsx.save(metadata, self.file_path, self.file_path, self.datatypes)
+                errors = backend.xlsx.save(metadata, self.file_path, self.file_path)
             case gui.support.Filetype.PPTX:
-                errors = backend.pptx.save(metadata, self.file_path, self.file_path, self.datatypes)
+                errors = backend.pptx.save(metadata, self.file_path, self.file_path)
 
         if errors:
-            message = "The following metadata could not be saved:\n"
-            for error in errors:
-                message += "• " + error + "\n"
-            QMessageBox.warning(self, "Error", message)
+            #message = "The following metadata could not be saved:\n"
+            # message = errors + "\n" # "• "
+            QMessageBox.warning(self, "Error", errors)
 
     def about(self):
         text = "" \
@@ -203,19 +201,14 @@ class MainWindow(QMainWindow):
                 metadata = backend.pdf.read(self.file_path)
                 self.readonly = []
             case gui.support.Filetype.WORD:
-                metadata, datatypes = backend.docx.read(self.file_path)
+                metadata = backend.docx.read(self.file_path)
                 self.readonly = []
-                self.datatypes = datatypes
             case gui.support.Filetype.EXCEL:
                 metadata = backend.xlsx.read(self.file_path)
                 self.readonly = []
-                datatypes = None
-                self.datatypes = datatypes
             case gui.support.Filetype.PPTX:
                 metadata = backend.pptx.read(self.file_path)
                 self.readonly = []
-                datatypes = None
-                self.datatypes = datatypes
             case gui.support.Filetype.NONE:
                 self.statusBar.showMessage("File format not supported", 5000)
                 return

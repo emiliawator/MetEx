@@ -1,11 +1,13 @@
 # xlsx extension
-# todo: exception handling
 from openpyxl import load_workbook
 from datetime import datetime
 
 def read(filepath):
-    wb = load_workbook(filepath)
-    prop = wb.properties
+    try:
+        wb = load_workbook(filepath)
+        prop = wb.properties
+    except:
+        return "Supplied filepath is invalid"
 
     metadata = []
     
@@ -26,27 +28,36 @@ def read(filepath):
     metadata.append(tuple(("title", prop.title)))
     metadata.append(tuple(("version", prop.version)))
 
-    
-    # for d in dir(wb.properties):
-    #     if not d.startswith('_'):
-    #         val = getattr(prop, d)
-    #         metadata.append(tuple((d,val)))
-    #         print(tuple((d,val)))
     return metadata
 
-def save(metadata, filepath, newfilepath, datatypes):
-    wb = load_workbook(filepath)
-    prop = wb.properties
+def save(metadata, filepath, newfilepath):
+    try:
+        wb = load_workbook(filepath)
+        prop = wb.properties
+    except:
+        return "Supplied filepath is invalid"
+    
     notuplelist = [list(i) for i in metadata]
 
     for item in notuplelist:
-        if item[0] == "created" or item[0] == "lastPrinted" or item[0] == "modified":
+        if item[0] == "created" or item[0] == "lastPrinted" or item[0] == "modified": # datetime type
             if item[1] != "None":
-                    item[1] = datetime.strptime(item[1], "%Y-%m-%d %H:%M:%S")
+                    try:
+                        item[1] = datetime.strptime(item[1], "%Y-%m-%d %H:%M:%S")
+                    except:
+                        return "Correct date format must be supplied: \n %Y-%m-%d %H:%M:%S"
             else: # if None by default
                 continue
-            setattr(prop, item[0], item[1])
+            try:
+                setattr(prop, item[0], item[1])
+            except:
+                return "An error occured while saving {} field".format(item[0])
         else:
-            setattr(prop, item[0], item[1])
-
-    wb.save(newfilepath)
+            try:
+                setattr(prop, item[0], item[1])
+            except:
+                return "An error occured while saving {} field".format(item[0])
+    try:
+        wb.save(newfilepath)
+    except:
+        return "Supplied filepath is invalid"

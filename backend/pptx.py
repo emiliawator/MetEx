@@ -1,12 +1,16 @@
 # pptx extension
-import collections # te dwie zaleznosci mega wazne
+import collections
 import collections.abc
 from pptx import Presentation
 from datetime import datetime
 
 def read(filepath):
-    prs = Presentation(filepath)
-    prop = prs.core_properties
+    try:
+        prs = Presentation(filepath)
+        prop = prs.core_properties
+    except:
+        return "Supplied filepath is invalid"
+
     metadata = []
     
     # str if not date
@@ -29,21 +33,39 @@ def read(filepath):
     return metadata
 
 
-def save(metadata, filepath, newfilepath, datatypes):
-    prs = Presentation(filepath)
-    prop = prs.core_properties
+def save(metadata, filepath, newfilepath):
+    try:
+        prs = Presentation(filepath)
+        prop = prs.core_properties
+    except:
+        return "Supplied filepath is invalid"
     notuplelist = [list(i) for i in metadata]
 
     for item in notuplelist:
-        if item[0] == "created" or item[0] == "last_printed" or item[0] == "modified":
+        if item[0] == "created" or item[0] == "last_printed" or item[0] == "modified": # datetime type
             if item[1] != "None":
-                    item[1] = datetime.strptime(item[1], "%Y-%m-%d %H:%M:%S")
+                    try:
+                        item[1] = datetime.strptime(item[1], "%Y-%m-%d %H:%M:%S")
+                    except:
+                        return "Correct date format must be supplied: \n %Y-%m-%d %H:%M:%S"
             else: # if None by default
                 continue
-            setattr(prop, item[0], item[1])
+            try:
+                setattr(prop, item[0], item[1])
+            except:
+                return "An error occured while saving {} field".format(item[0])
+            
         if item[0] == "revision": # int
-            setattr(prop, item[0], (int)(item[1]))
+            try:
+                setattr(prop, item[0], (int)(item[1]))
+            except:
+                return "Revision field must be an integer value"
         else:
-            setattr(prop, item[0], item[1])
-
-    prs.save(newfilepath)
+            try:
+                setattr(prop, item[0], item[1])
+            except:
+                return "An error occured while saving {} field".format(item[0])
+    try:
+        prs.save(newfilepath)
+    except:
+        return "Supplied filepath is invalid"

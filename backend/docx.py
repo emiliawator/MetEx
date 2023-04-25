@@ -9,62 +9,74 @@ from datetime import datetime
 def read(filepath):
     try:
         doc = docx.Document(filepath)
-    except Exception as err: # todo - exception handling more detailed
-        print(f"Unexpected {err=}, {type(err)=}")
+    except:
+        return "Supplied filepath is invalid"
 
     try:
         prop = doc.core_properties
-    except Exception as err2: # todo - exception handling more detailed
-        print(f"Unexpected {err2=}, {type(err2)=}")
+    except: 
+        return "An error occured while reading metadata"
                 
     metadata = [] # list of tuples
-    datatypes = [] # helper
 
-    for d in dir(prop):
-        if not d.startswith('_'):
-            val = getattr(prop, d) # returns a value of a property
-            if isinstance(val, datetime):
-                val = val.strftime("%Y-%m-%d %H:%M:%S")
-                datatypes.append("date")
-            elif val is None: # very bad temp solution, better is to just use a position of a field
-                datatypes.append("date")
-            elif isinstance(val, int):
-                datatypes.append("int")
-            else:
-                datatypes.append("")
-            metadata.append(((d,val)))
+    # str if not date
+    metadata.append(tuple(("category", prop.category)))
+    metadata.append(tuple(("content_status", prop.content_status)))
+    metadata.append(tuple(("created", prop.created))) #date
+    metadata.append(tuple(("author", prop.author)))
+    metadata.append(tuple(("comments", prop.comments)))
+    metadata.append(tuple(("identifier", prop.identifier)))
+    metadata.append(tuple(("keywords", prop.keywords)))
+    metadata.append(tuple(("language", prop.language)))
+    metadata.append(tuple(("last_modified_by", prop.last_modified_by)))
+    metadata.append(tuple(("last_printed", prop.last_printed))) #date
+    metadata.append(tuple(("modified", prop.modified))) #date
+    metadata.append(tuple(("revision", prop.revision))) # int
+    metadata.append(tuple(("subject", prop.subject)))
+    metadata.append(tuple(("title", prop.title)))
+    metadata.append(tuple(("version", prop.version)))
     
-    return metadata, datatypes
+    return metadata
  
 
-def save(newlist, filepath, newfilepath, datatypes):
+def save(metadata, filepath, newfilepath):
+    errors = None
     try:
         doc = docx.Document(filepath)
-    except Exception as err: # todo - exception handling more detailed
-        print(f"Unexpected {err=}, {type(err)=}")
-
+    except:
+        return "Supplied filepath is invalid"
     try:
         prop = doc.core_properties
-    except Exception as err2: # todo - exception handling more detailed
-        print(f"Unexpected {err2=}, {type(err2)=}")
+    except:
+        return "An error occured while reading metadata"
 
-    notuplelist = [list(i) for i in newlist]
+    notuplelist = [list(i) for i in metadata]
 
-    i = 0
-    for d in dir(prop):
-        if not d.startswith('_'):
-            if datatypes[i] == "date":
-                if notuplelist[i][1] != "None":
-                    notuplelist[i][1] = datetime.strptime(notuplelist[i][1], "%Y-%m-%d %H:%M:%S")
-                else: # if None by default
-                    i+=1 
-                    continue
-                setattr(prop, d, (notuplelist[i][1]))
-            elif datatypes[i] == "int":
-                setattr(prop, d, (int)(notuplelist[i][1]))
-            else:
-                setattr(prop, d, notuplelist[i][1])
-            i += 1
-
-    doc.save(newfilepath)
-
+    for item in notuplelist:
+        if item[0] == "created" or item[0] == "last_printed" or item[0] == "modified": # datetime type
+            if item[1] != "None":
+                    try:
+                        item[1] = datetime.strptime(item[1], "%Y-%m-%d %H:%M:%S")
+                    except:
+                        return "Correct date format must be supplied: \n %Y-%m-%d %H:%M:%S"
+            else: # if None by default
+                continue
+            try:
+                setattr(prop, item[0], item[1])
+            except:
+                return "An error occured while saving {} field".format(item[0])
+            
+        if item[0] == "revision": # int
+            try:
+                setattr(prop, item[0], (int)(item[1]))
+            except:
+                return "Revision field must be an integer value"
+        else:
+            try:
+                setattr(prop, item[0], item[1])
+            except:
+                return "An error occured while saving {} field".format(item[0])
+    try:
+        doc.save(newfilepath)
+    except:
+        return "Supplied filepath is invalid"
