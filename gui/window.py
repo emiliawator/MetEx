@@ -33,6 +33,8 @@ class MainWindow(QMainWindow):
 
     def open(self):
         self.file_path = QFileDialog.getOpenFileName(self, "Open")[0]
+        if not self.file_path:
+            return
         self._checkFileType()
         self._loadTable()
 
