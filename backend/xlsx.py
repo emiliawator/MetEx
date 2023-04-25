@@ -31,11 +31,13 @@ def read(filepath):
     return metadata
 
 def save(metadata, filepath, newfilepath):
+    errors = []
     try:
         wb = load_workbook(filepath)
         prop = wb.properties
     except:
-        return "Supplied filepath is invalid"
+        errors.append("Supplied filepath is invalid")
+        return errors
     
     notuplelist = [list(i) for i in metadata]
 
@@ -45,19 +47,23 @@ def save(metadata, filepath, newfilepath):
                     try:
                         item[1] = datetime.strptime(item[1], "%Y-%m-%d %H:%M:%S")
                     except:
-                        return "Correct date format must be supplied: \n %Y-%m-%d %H:%M:%S"
+                        errors.append("Correct date format must be supplied in {} field: \n %Y-%m-%d %H:%M:%S".format(item[0]))
+                        return errors
             else: # if None by default
                 continue
             try:
                 setattr(prop, item[0], item[1])
             except:
-                return "An error occured while saving {} field".format(item[0])
+                errors.append("An error occured while saving {} field".format(item[0]))
+                return errors
         else:
             try:
                 setattr(prop, item[0], item[1])
             except:
-                return "An error occured while saving {} field".format(item[0])
+                errors.append("An error occured while saving {} field".format(item[0]))
+                return errors
     try:
         wb.save(newfilepath)
     except:
-        return "Supplied filepath is invalid"
+        errors.append("Supplied filepath is invalid")
+        return errors

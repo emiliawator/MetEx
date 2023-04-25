@@ -40,15 +40,17 @@ def read(filepath):
  
 
 def save(metadata, filepath, newfilepath):
-    errors = None
+    errors = []
     try:
         doc = docx.Document(filepath)
     except:
-        return "Supplied filepath is invalid"
+        errors.append("Supplied filepath is invalid")
+        return errors
     try:
         prop = doc.core_properties
     except:
-        return "An error occured while reading metadata"
+        errors.append("An error occured while reading metadata")
+        return errors
 
     notuplelist = [list(i) for i in metadata]
 
@@ -58,25 +60,30 @@ def save(metadata, filepath, newfilepath):
                     try:
                         item[1] = datetime.strptime(item[1], "%Y-%m-%d %H:%M:%S")
                     except:
-                        return "Correct date format must be supplied: \n %Y-%m-%d %H:%M:%S"
+                        errors.append("Correct date format must be supplied in {} field: \n %Y-%m-%d %H:%M:%S".format(item[0]))
+                        return errors
             else: # if None by default
                 continue
             try:
                 setattr(prop, item[0], item[1])
             except:
-                return "An error occured while saving {} field".format(item[0])
+                errors.append("An error occured while saving {} field".format(item[0]))
+                return errors
             
         if item[0] == "revision": # int
             try:
                 setattr(prop, item[0], (int)(item[1]))
             except:
-                return "Revision field must be an integer value"
+                errors.append("Revision field must be an integer value")
+                return errors
         else:
             try:
                 setattr(prop, item[0], item[1])
             except:
-                return "An error occured while saving {} field".format(item[0])
+                errors.append("An error occured while saving {} field".format(item[0]))
+                return errors
     try:
         doc.save(newfilepath)
     except:
-        return "Supplied filepath is invalid"
+        errors.append("Supplied filepath is invalid")
+        return errors

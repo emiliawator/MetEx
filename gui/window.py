@@ -56,9 +56,10 @@ class MainWindow(QMainWindow):
                 errors = backend.pptx.save(metadata, self.file_path, self.file_path)
 
         if errors:
-            #message = "The following metadata could not be saved:\n"
-            # message = errors + "\n" # "• "
-            QMessageBox.warning(self, "Error", errors)
+            message = "The following metadata could not be saved.\n"
+            for error in errors:
+                message += "• " + error + "\n"
+            QMessageBox.warning(self, "Error", message)
 
     def about(self):
         text = "" \
