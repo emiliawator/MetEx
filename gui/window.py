@@ -12,11 +12,13 @@ import gui.support
 
 
 readonly = [] # read-only metadata keys for current file
+metadata = []
 
 class MainWindow(QMainWindow):
     
     file_type = gui.support.Filetype.NONE
     file_path = None
+    mode = "light"
 
     def __init__(self, parent=None):
 
@@ -56,12 +58,66 @@ class MainWindow(QMainWindow):
                 errors = backend.xlsx.save(metadata, self.file_path, self.file_path)
             case gui.support.Filetype.PPTX:
                 errors = backend.pptx.save(metadata, self.file_path, self.file_path)
-
         if errors:
             message = "The following metadata could not be saved.\n"
             for error in errors:
                 message += "• " + error + "\n"
             QMessageBox.warning(self, "Error", message)
+        self.metadata = metadata
+
+    def change_mode(self):
+        if self.mode == "light":
+            self.mode = "dark"
+        elif self.mode == "dark":
+            self.mode = "light"
+        self.load_mode()
+
+    def load_mode(self):
+        if self.mode == "dark":
+            self.setStyleSheet("background-color: #424242; color: #ffffff;")
+            self.statusBar.setStyleSheet("background-color: #424242; color: #ffffff;")
+            if self.centralWidget() == self.welcomeSite:
+                self.welcomeSite.setStyleSheet("background-color: #424242; color: #ffffff;")
+                self.welcomeSite.layout().itemAt(4).widget().setStyleSheet("background-color: #ffffff; color: #000000;")
+            elif self.centralWidget() == self.tableWidget:
+                self.tableWidget.setStyleSheet("background-color: #424242; color: #ffffff;")
+                self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section { background-color: #262626; }")
+                self.tableWidget.verticalHeader().setStyleSheet("QHeaderView::section { background-color: #262626; }")
+                # readonly cells style
+                for i, (key, value) in enumerate(self.metadata):
+                    k = QTableWidgetItem(str(key))
+                    v = QTableWidgetItem(str(value))
+                    self.tableWidget.setItem(i, 0, k)
+                    self.tableWidget.setItem(i, 1, v)  
+                    if key in self.readonly:
+                        v.setForeground(Qt.white)
+                        k.setForeground(Qt.white)
+                        v.setBackground(QColor(38, 38, 38))
+                        k.setBackground(QColor(38, 38, 38))
+            self.mode = "dark"
+
+        elif self.mode == "light":
+            self.setStyleSheet("background-color: #f0f0f0; color: #000000;")
+            self.statusBar.setStyleSheet("background-color: #ffffff; color: #000000;")
+            if self.centralWidget() == self.welcomeSite:
+                self.welcomeSite.setStyleSheet("background-color: #f0f0f0; color: #000000;")
+                self.welcomeSite.layout().itemAt(4).widget().setStyleSheet("background-color: #e1e1e1; color: #000000;")
+            elif self.centralWidget() == self.tableWidget:
+                self.tableWidget.setStyleSheet("background-color: #ffffff; color: #000000;")
+                self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section { background-color: #d9e6cf; }")
+                self.tableWidget.verticalHeader().setStyleSheet("QHeaderView::section { background-color: #d9e6cf; }")
+                # readonly cells style
+                for i, (key, value) in enumerate(self.metadata):
+                    k = QTableWidgetItem(str(key))
+                    v = QTableWidgetItem(str(value))
+                    self.tableWidget.setItem(i, 0, k)
+                    self.tableWidget.setItem(i, 1, v)  
+                    if key in self.readonly:
+                        v.setForeground(Qt.black)
+                        k.setForeground(Qt.black)
+                        v.setBackground(QColor(235, 235, 235))
+                        k.setBackground(QColor(235, 235, 235))
+            self.mode = "light"
 
     def about(self):
         text = "" \
@@ -99,9 +155,10 @@ class MainWindow(QMainWindow):
         fileMenu = menuBar.addMenu("&File")
         fileMenu.addAction(self.openAction)
         fileMenu.addAction(self.saveAction)
+        fileMenu.addAction(self.undoAction)
         fileMenu.addAction(self.exitAction)
-        optionsMenu = menuBar.addMenu("&Options")
-        optionsMenu.addAction(self.undoAction)
+        optionsMenu = menuBar.addMenu("&View")
+        optionsMenu.addAction(self.modeAction)
         helpMenu = menuBar.addMenu("&Help")
         helpMenu.addAction(self.aboutAction)
         self.setWindowIcon(QIcon("icons/logo.png"))
@@ -113,11 +170,17 @@ class MainWindow(QMainWindow):
         self.saveAction = QAction("&Save", self)
         self.saveAction.setShortcut("Ctrl+S")
         self.saveAction.triggered.connect(self.save)
+        self.undoAction = QAction("&Undo", self)
+        self.undoAction.setShortcut("Ctrl+Z")
+        # self.undoAction.triggered.connect(self.undo)
         self.exitAction = QAction("&Exit", self)
         self.exitAction.setShortcut("Ctrl+Q")
         self.exitAction.triggered.connect(self.close)
-        self.undoAction = QAction("&Undo", self)
-        self.undoAction.setShortcut("Ctrl+Z")
+
+        self.modeAction = QAction("&Change mode", self)
+        self.modeAction.setShortcut("Ctrl+M")
+        self.modeAction.triggered.connect(self.change_mode)
+
         self.aboutAction = QAction("&About", self)
         self.aboutAction.setShortcut("Ctrl+I")
         self.aboutAction.triggered.connect(self.about)
@@ -153,10 +216,10 @@ class MainWindow(QMainWindow):
         text2.setFont(font2)
         self.welcomeSiteLayout.addWidget(text2, alignment=Qt.AlignCenter)
 
-        button = QPushButton("Open file")
-        button.clicked.connect(self.open)
-        button.setFixedSize(300, 40)
-        self.welcomeSiteLayout.addWidget(button, alignment=Qt.AlignCenter)
+        openButton = QPushButton("Open file")
+        openButton.clicked.connect(self.open)
+        openButton.setFixedSize(300, 40)
+        self.welcomeSiteLayout.addWidget(openButton, alignment=Qt.AlignCenter)
 
         self.setCentralWidget(self.welcomeSite)
 
@@ -193,6 +256,7 @@ class MainWindow(QMainWindow):
         self._createTable()
         self.setCentralWidget(self.tableWidget)
         self.statusBar.show()
+
         match self.file_type:
             case gui.support.Filetype.IMAGE:
                 metadata, readonly = backend.images.read(self.file_path)
@@ -222,18 +286,26 @@ class MainWindow(QMainWindow):
         for i, (key, value) in enumerate(metadata):
             k = QTableWidgetItem(str(key))
             k.setFlags(k.flags() & Qt.ItemIsEditable)
-            k.setForeground(Qt.black)
             self.tableWidget.setItem(i, 0, k)
 
             v = QTableWidgetItem(str(value))
             if key in self.readonly:
                 v.setFlags(v.flags() & Qt.ItemIsEditable)
-                v.setForeground(Qt.black)
-                v.setBackground(QColor(235, 235, 235)) #ebebeb
-                k.setBackground(QColor(235, 235, 235)) #ebebeb
+                if self.mode == "light":
+                    v.setForeground(Qt.black)
+                    k.setForeground(Qt.black)
+                    v.setBackground(QColor(235, 235, 235)) #ebebeb
+                    k.setBackground(QColor(235, 235, 235)) #ebebeb
+                elif self.mode == "dark":
+                    v.setForeground(Qt.white)
+                    k.setForeground(Qt.white)
+                    v.setBackground(QColor(66, 66, 66))
+                    k.setBackground(QColor(66, 66, 66))
             else:
                 v.setFlags(v.flags() | Qt.ItemIsEditable)
             self.tableWidget.setItem(i, 1, v)  
 
+        self.metadata = metadata
+        self.load_mode()
         self.statusBar.showMessage("File loaded", 5000)
 
