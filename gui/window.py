@@ -13,6 +13,7 @@ import gui.support
 
 readonly = [] # read-only metadata keys for current file
 metadata = []
+original_file_metadata = []
 
 class MainWindow(QMainWindow):
     
@@ -39,6 +40,7 @@ class MainWindow(QMainWindow):
             return
         self._checkFileType()
         self._loadTable()
+        self.original_file_metadata = self.metadata
 
     def save(self):
         metadata = []
@@ -64,6 +66,27 @@ class MainWindow(QMainWindow):
                 message += "• " + error + "\n"
             QMessageBox.warning(self, "Error", message)
         self.metadata = metadata
+
+    def discard(self):
+        self.metadata = self.original_file_metadata
+        for i, (key, value) in enumerate(self.metadata):
+            k = QTableWidgetItem(str(key))
+            v = QTableWidgetItem(str(value))
+            self.tableWidget.setItem(i, 0, k)
+            self.tableWidget.setItem(i, 1, v)  
+            if key in self.readonly:
+                if self.mode == "light":
+                    v.setForeground(Qt.black)
+                    k.setForeground(Qt.black)
+                    v.setBackground(QColor(235, 235, 235))
+                    k.setBackground(QColor(235, 235, 235))
+                elif self.mode == "dark":
+                    v.setForeground(Qt.white)
+                    k.setForeground(Qt.white)
+                    v.setBackground(QColor(66, 66, 66))
+                    k.setBackground(QColor(66, 66, 66))
+        self.statusBar.showMessage("Changes discarded", 5000)
+        self.save()
 
     def change_mode(self):
         if self.mode == "light":
@@ -138,16 +161,16 @@ class MainWindow(QMainWindow):
 
     def _createStatusBar(self):
         self.statusBar = self.statusBar()
-
         self.discardButton = QPushButton("Discard")
-        self.statusBar.addWidget(self.discardButton)
-
+        self.discardButton.clicked.connect(self.discard)
         self.saveButton = QPushButton("Save")
         self.saveButton.clicked.connect(self.save)
         self.exitButton = QPushButton("Exit")
         self.exitButton.clicked.connect(self.close)
+
         self.statusBar.addAction(self.exitAction)
         self.statusBar.addPermanentWidget(self.saveButton)
+        self.statusBar.addPermanentWidget(self.discardButton)
         self.statusBar.addPermanentWidget(self.exitButton)
 
     def _createMenuBar(self):
@@ -155,7 +178,7 @@ class MainWindow(QMainWindow):
         fileMenu = menuBar.addMenu("&File")
         fileMenu.addAction(self.openAction)
         fileMenu.addAction(self.saveAction)
-        fileMenu.addAction(self.undoAction)
+        fileMenu.addAction(self.discardAction)
         fileMenu.addAction(self.exitAction)
         optionsMenu = menuBar.addMenu("&View")
         optionsMenu.addAction(self.modeAction)
@@ -170,9 +193,9 @@ class MainWindow(QMainWindow):
         self.saveAction = QAction("&Save", self)
         self.saveAction.setShortcut("Ctrl+S")
         self.saveAction.triggered.connect(self.save)
-        self.undoAction = QAction("&Undo", self)
-        self.undoAction.setShortcut("Ctrl+Z")
-        # self.undoAction.triggered.connect(self.undo)
+        self.discardAction = QAction("&Discard", self)
+        self.discardAction.setShortcut("Ctrl+D")
+        self.discardAction.triggered.connect(self.discard)
         self.exitAction = QAction("&Exit", self)
         self.exitAction.setShortcut("Ctrl+Q")
         self.exitAction.triggered.connect(self.close)
