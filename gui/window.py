@@ -34,6 +34,7 @@ class MainWindow(QMainWindow):
         self._createStatusBar()
         self.statusBar.hide()
 
+    # opens file dialog and loads file
     def open(self):
         self.file_path = QFileDialog.getOpenFileName(self, "Open")[0]
         if not self.file_path:
@@ -42,6 +43,7 @@ class MainWindow(QMainWindow):
         self._loadTable()
         self.original_file_metadata = self.metadata
 
+    # saves metadata from self.tableWidget to self.metadata
     def save(self):
         metadata = []
         for i in range(self.tableWidget.rowCount()):
@@ -67,8 +69,8 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Error", message)
         self.metadata = metadata
 
-    def discard(self):
-        self.metadata = self.original_file_metadata
+    # loads metadata from self.metadata to self.tableWidget
+    def load_metadata(self):
         for i, (key, value) in enumerate(self.metadata):
             k = QTableWidgetItem(str(key))
             v = QTableWidgetItem(str(value))
@@ -85,9 +87,34 @@ class MainWindow(QMainWindow):
                     k.setForeground(Qt.white)
                     v.setBackground(QColor(66, 66, 66))
                     k.setBackground(QColor(66, 66, 66))
-        self.statusBar.showMessage("Changes discarded", 5000)
-        self.save()
 
+    # discards changes made to metadata
+    def discard(self):
+        self.metadata = self.original_file_metadata
+        self.load_metadata()
+        self.statusBar.showMessage("Changes discarded", 5000)
+
+    # erases all metadata from file
+    def erase(self):
+        for i, (key, value) in enumerate(self.metadata):
+            k = QTableWidgetItem(str(key))
+            v = QTableWidgetItem("")
+            self.tableWidget.setItem(i, 0, k)
+            self.tableWidget.setItem(i, 1, v)  
+            if key in self.readonly:
+                if self.mode == "light":
+                    v.setForeground(Qt.black)
+                    k.setForeground(Qt.black)
+                    v.setBackground(QColor(235, 235, 235))
+                    k.setBackground(QColor(235, 235, 235))
+                elif self.mode == "dark":
+                    v.setForeground(Qt.white)
+                    k.setForeground(Qt.white)
+                    v.setBackground(QColor(66, 66, 66))
+                    k.setBackground(QColor(66, 66, 66))
+        self.statusBar.showMessage("Metadata erased", 5000)
+
+    # changes mode between light and dark
     def change_mode(self):
         if self.mode == "light":
             self.mode = "dark"
@@ -95,6 +122,7 @@ class MainWindow(QMainWindow):
             self.mode = "light"
         self.load_mode()
 
+    # loads color scheme
     def load_mode(self):
         if self.mode == "dark":
             self.setStyleSheet("background-color: #424242; color: #ffffff;")
@@ -142,6 +170,7 @@ class MainWindow(QMainWindow):
                         k.setBackground(QColor(235, 235, 235))
             self.mode = "light"
 
+    # shows about dialog
     def about(self):
         text = "" \
             "<h3>About MetEx</h3>" \
@@ -179,6 +208,7 @@ class MainWindow(QMainWindow):
         fileMenu.addAction(self.openAction)
         fileMenu.addAction(self.saveAction)
         fileMenu.addAction(self.discardAction)
+        fileMenu.addAction(self.eraseAction)
         fileMenu.addAction(self.exitAction)
         optionsMenu = menuBar.addMenu("&View")
         optionsMenu.addAction(self.modeAction)
@@ -196,6 +226,11 @@ class MainWindow(QMainWindow):
         self.discardAction = QAction("&Discard", self)
         self.discardAction.setShortcut("Ctrl+D")
         self.discardAction.triggered.connect(self.discard)
+
+        self.eraseAction = QAction("&Erase metadata", self)
+        self.eraseAction.setShortcut("Ctrl+E")
+        self.eraseAction.triggered.connect(self.erase)
+
         self.exitAction = QAction("&Exit", self)
         self.exitAction.setShortcut("Ctrl+Q")
         self.exitAction.triggered.connect(self.close)
