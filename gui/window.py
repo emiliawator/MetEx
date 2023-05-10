@@ -92,6 +92,7 @@ class MainWindow(QMainWindow):
     def discard(self):
         self.metadata = self.original_file_metadata
         self.load_metadata()
+        self.load_mode()
         self.statusBar.showMessage("Changes discarded", 5000)
 
     # erases all metadata from file
