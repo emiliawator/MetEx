@@ -65,7 +65,15 @@ def erase(path):
     if extension in ['jpg', 'jpeg', 'tiff', 'tif']:
         with open(path, 'rb') as image_file:
             exif_image = Image(image_file)
-        exif_image.delete_all()
+        metadata = exif_image.get_all()
+        metadata = [(key, str(value)) for key, value in metadata.items()]
+        for key, value in metadata:
+            try: 
+                exif_image.set(key, "")
+                continue
+            except: pass
+            try: exif_image.set(key, 0)
+            except: errors.append(key)
         with open(path, 'wb') as new_image:
             new_image.write(exif_image.get_file())
     elif extension == 'png':

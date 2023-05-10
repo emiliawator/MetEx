@@ -20,3 +20,15 @@ def save(path, metadata):
         except: errors.append(key)
     audio.save()
     return errors
+
+# erase metadata
+def erase(path):
+    errors = []
+    audio = MP3(path, ID3=EasyID3)
+    metadata = audio.tags
+    metadata = [(key, value[0]) for key, value in metadata.items()]
+    for key, value in metadata:
+        try: audio.tags[key] = ''
+        except: errors.append(key)
+    audio.save()
+    return errors

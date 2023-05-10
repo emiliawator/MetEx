@@ -95,20 +95,38 @@ class MainWindow(QMainWindow):
         self.load_mode()
         self.statusBar.showMessage("Changes discarded", 5000)
 
+    def are_you_sure(self):
+        box = QMessageBox
+        if box.question(self,'', "This operation might be irreversible.\n Do you want to proceed?", box.Yes | box.No) == box.No:
+            return False
+        return True
+
     # erases all metadata from file
     def erase(self):
         match self.file_type:
             case gui.support.Filetype.IMAGE:
+                if not self.are_you_sure():
+                    return
                 errors = backend.images.erase(self.file_path)
             case gui.support.Filetype.AUDIO:
+                if not self.are_you_sure():
+                    return
                 errors = backend.audio.erase(self.file_path)
             case gui.support.Filetype.PDF:
+                if not self.are_you_sure():
+                    return
                 errors = backend.pdf.erase(self.file_path)
             case gui.support.Filetype.WORD:
+                if not self.are_you_sure():
+                    return
                 errors = backend.docx.erase(self.file_path)
             case gui.support.Filetype.EXCEL:
+                if not self.are_you_sure():
+                    return
                 errors = backend.xlsx.erase(self.file_path)
             case gui.support.Filetype.PPTX:
+                if not self.are_you_sure():
+                    return
                 errors = backend.pptx.erase(self.file_path)
         if errors:
             message = "The following metadata could not be erased.\n"
