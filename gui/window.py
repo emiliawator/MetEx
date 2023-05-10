@@ -96,22 +96,25 @@ class MainWindow(QMainWindow):
 
     # erases all metadata from file
     def erase(self):
-        for i, (key, value) in enumerate(self.metadata):
-            k = QTableWidgetItem(str(key))
-            v = QTableWidgetItem("")
-            self.tableWidget.setItem(i, 0, k)
-            self.tableWidget.setItem(i, 1, v)  
-            if key in self.readonly:
-                if self.mode == "light":
-                    v.setForeground(Qt.black)
-                    k.setForeground(Qt.black)
-                    v.setBackground(QColor(235, 235, 235))
-                    k.setBackground(QColor(235, 235, 235))
-                elif self.mode == "dark":
-                    v.setForeground(Qt.white)
-                    k.setForeground(Qt.white)
-                    v.setBackground(QColor(66, 66, 66))
-                    k.setBackground(QColor(66, 66, 66))
+        match self.file_type:
+            case gui.support.Filetype.IMAGE:
+                errors = backend.images.erase(self.file_path)
+            case gui.support.Filetype.AUDIO:
+                errors = backend.audio.erase(self.file_path)
+            case gui.support.Filetype.PDF:
+                errors = backend.pdf.erase(self.file_path)
+            case gui.support.Filetype.WORD:
+                errors = backend.docx.erase(self.file_path)
+            case gui.support.Filetype.EXCEL:
+                errors = backend.xlsx.erase(self.file_path)
+            case gui.support.Filetype.PPTX:
+                errors = backend.pptx.erase(self.file_path)
+        if errors:
+            message = "The following metadata could not be erased.\n"
+            for error in errors:
+                message += "• " + error + "\n"
+            QMessageBox.warning(self, "Error", message)
+        self._loadTable()
         self.statusBar.showMessage("Metadata erased", 5000)
 
     # changes mode between light and dark
