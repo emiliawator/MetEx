@@ -1,4 +1,6 @@
 # xlsx extension
+# modified field does not want to be changed :(
+
 from openpyxl import load_workbook
 from datetime import datetime
 
@@ -64,6 +66,51 @@ def save(metadata, filepath, newfilepath):
                 return errors
     try:
         wb.save(newfilepath)
+    except:
+        errors.append("Supplied filepath is invalid")
+        return errors
+    
+
+def erase(filepath):
+    errors = []
+    try:
+        wb = load_workbook(filepath)
+        prop = wb.properties
+    except:
+        errors.append("Supplied filepath is invalid")
+        return errors
+    metadata = [] # list of tuples
+
+    # str if not date
+    metadata.append(tuple(("category", "")))
+    metadata.append(tuple(("contentStatus", "")))
+    metadata.append(tuple(("creator", "")))
+    metadata.append(tuple(("description", "")))
+    metadata.append(tuple(("identifier", "")))
+    metadata.append(tuple(("keywords", "")))
+    metadata.append(tuple(("language", "")))
+    metadata.append(tuple(("lastModifiedBy", "")))
+    metadata.append(tuple(("revision", "")))
+    metadata.append(tuple(("subject", "")))
+    metadata.append(tuple(("title", "")))
+    metadata.append(tuple(("version", "")))
+    
+    # datetime handling
+    default_date = datetime.min
+    if prop.created is not None:
+        metadata.append(tuple(("created", default_date)))
+    if prop.lastPrinted is not None:
+        metadata.append(tuple(("lastPrinted", default_date)))
+    if prop.modified is not None:
+        metadata.append(tuple(("modified", default_date)))
+    
+    notuplelist = [list(i) for i in metadata]
+
+    for item in notuplelist:
+        setattr(prop, item[0], item[1])
+
+    try:
+        wb.save(filepath)
     except:
         errors.append("Supplied filepath is invalid")
         return errors

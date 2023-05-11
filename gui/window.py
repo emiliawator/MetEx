@@ -40,6 +40,9 @@ class MainWindow(QMainWindow):
         if not self.file_path:
             return
         self._checkFileType()
+        if self.file_type is gui.support.Filetype.NONE:
+            QMessageBox.warning(self, "Error", "This file type is not supported")
+            return
         self._loadTable()
         self.original_file_metadata = self.metadata
 

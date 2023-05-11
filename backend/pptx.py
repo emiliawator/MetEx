@@ -1,5 +1,4 @@
 # pptx extension
-import collections
 import collections.abc
 from pptx import Presentation
 from datetime import datetime
@@ -64,7 +63,7 @@ def save(metadata, filepath, newfilepath):
             try:
                 setattr(prop, item[0], (int)(item[1]))
             except:
-                errors.append("Revision field must be an integer value")
+                errors.append("Revision field must be a positive integer value")
                 return errors
         else:
             try:
@@ -74,6 +73,50 @@ def save(metadata, filepath, newfilepath):
                 return errors
     try:
         prs.save(newfilepath)
+    except:
+        errors.append("Supplied filepath is invalid")
+        return errors
+    
+def erase(filepath):
+    errors = []
+    try:
+        prs = Presentation(filepath)
+        prop = prs.core_properties
+    except:
+        errors.append("Supplied filepath is invalid")
+        return errors
+    metadata = [] # list of tuples
+
+    # str if not date
+    metadata.append(tuple(("category", "")))
+    metadata.append(tuple(("content_status", "")))
+    metadata.append(tuple(("author", "")))
+    metadata.append(tuple(("comments", "")))
+    metadata.append(tuple(("identifier", "")))
+    metadata.append(tuple(("keywords", "")))
+    metadata.append(tuple(("language", "")))
+    metadata.append(tuple(("last_modified_by", "")))
+    metadata.append(tuple(("revision", 1))) 
+    metadata.append(tuple(("subject", "")))
+    metadata.append(tuple(("title", "")))
+    metadata.append(tuple(("version", "")))
+    
+    # datetime handling
+    default_date = datetime.min
+    if prop.created is not None:
+        metadata.append(tuple(("created", default_date)))
+    if prop.last_printed is not None:
+        metadata.append(tuple(("last_printed", default_date)))
+    if prop.modified is not None:
+        metadata.append(tuple(("modified", default_date)))
+    
+    notuplelist = [list(i) for i in metadata]
+
+    for item in notuplelist:
+        setattr(prop, item[0], item[1])
+
+    try:
+        prs.save(filepath)
     except:
         errors.append("Supplied filepath is invalid")
         return errors
