@@ -127,6 +127,7 @@ class MainWindow(QMainWindow):
                 if not self.are_you_sure():
                     return
                 errors = backend.xlsx.erase(self.file_path)
+                QMessageBox.warning(self, "Warning", "The 'modified' field cannot be erased in .xlsx files.")
             case gui.support.Filetype.PPTX:
                 if not self.are_you_sure():
                     return
