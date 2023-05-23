@@ -29,7 +29,7 @@ class MainWindow(QMainWindow):
         self.resize(800, 600)
 
         self._createActions()
-        self._createMenuBar()
+        self._createWelcomeMenuBar()
         self._createWelcomePage()
         self._createStatusBar()
         self.statusBar.hide()
@@ -39,6 +39,8 @@ class MainWindow(QMainWindow):
         self.file_path = QFileDialog.getOpenFileName(self, "Open")[0]
         if not self.file_path:
             return
+        self.menuBar().clear()
+        self._createMenuBar()
         self._checkFileType()
         if self.file_type is gui.support.Filetype.NONE:
             QMessageBox.warning(self, "Error", "This file type is not supported")
@@ -235,6 +237,17 @@ class MainWindow(QMainWindow):
         fileMenu.addAction(self.saveAction)
         fileMenu.addAction(self.discardAction)
         fileMenu.addAction(self.eraseAction)
+        fileMenu.addAction(self.exitAction)
+        optionsMenu = menuBar.addMenu("&View")
+        optionsMenu.addAction(self.modeAction)
+        helpMenu = menuBar.addMenu("&Help")
+        helpMenu.addAction(self.aboutAction)
+        self.setWindowIcon(QIcon("icons/logo.png"))
+
+    def _createWelcomeMenuBar(self):
+        menuBar = self.menuBar()
+        fileMenu = menuBar.addMenu("&File")
+        fileMenu.addAction(self.openAction)
         fileMenu.addAction(self.exitAction)
         optionsMenu = menuBar.addMenu("&View")
         optionsMenu.addAction(self.modeAction)
