@@ -334,7 +334,7 @@ class MainWindow(QMainWindow):
     
     def _checkFileType(self):
         extension = self.file_path.split(".")[-1]
-        if extension in ['jpg', 'jpeg', 'png', 'tiff', 'tif']:
+        if extension in ['jpg', 'jpeg', 'tiff', 'tif']:
             self.file_type = gui.support.Filetype.IMAGE
         elif extension == 'pdf':
             self.file_type = gui.support.Filetype.PDF

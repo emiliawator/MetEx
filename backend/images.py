@@ -1,6 +1,5 @@
 from exif import Image
 from exif import *
-from PIL import Image as PILImage
 
 # read file metadata
 def read(path):
@@ -31,8 +30,6 @@ def find_readonly(path, metadata):
             except: readonly.append(key)
         with open(path, 'wb') as new_image:
             new_image.write(exif_image.get_file())
-    elif extension == 'png':
-        raise ValueError("File format not supported")
     else:
         raise ValueError("File format not supported")
     return readonly
@@ -52,8 +49,6 @@ def save(path, metadata, readonly):
                 except: errors.append(key)
         with open(path, 'wb') as new_image:
             new_image.write(exif_image.get_file())
-    elif extension == 'png':
-        raise ValueError("File format not supported")
     else:
         raise ValueError("File format not supported")
     return errors
@@ -78,8 +73,6 @@ def erase(path):
                     errors.append(key)
         with open(path, 'wb') as new_image:
             new_image.write(exif_image.get_file())
-    elif extension == 'png':
-        raise ValueError("File format not supported")
     else:
         raise ValueError("File format not supported")
     return errors
