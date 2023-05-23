@@ -266,7 +266,7 @@ class MainWindow(QMainWindow):
         self.discardAction.setShortcut("Ctrl+D")
         self.discardAction.triggered.connect(self.discard)
 
-        self.eraseAction = QAction("&Erase metadata", self)
+        self.eraseAction = QAction("&Erase", self)
         self.eraseAction.setShortcut("Ctrl+E")
         self.eraseAction.triggered.connect(self.erase)
 

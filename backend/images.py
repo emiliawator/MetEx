@@ -73,7 +73,9 @@ def erase(path):
                 continue
             except: pass
             try: exif_image.set(key, 0)
-            except: errors.append(key)
+            except: 
+                if key != "exif_version":
+                    errors.append(key)
         with open(path, 'wb') as new_image:
             new_image.write(exif_image.get_file())
     elif extension == 'png':
