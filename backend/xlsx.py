@@ -24,7 +24,7 @@ def read(filepath):
     metadata.append(tuple(("language", prop.language)))
     metadata.append(tuple(("lastModifiedBy", prop.lastModifiedBy)))
     metadata.append(tuple(("lastPrinted", prop.lastPrinted))) #date
-    metadata.append(tuple(("modified", prop.modified))) #date
+    metadata.append(tuple(("modified", prop.modified))) #date zawsze mozna oszukac i zrobic handling ze jezeli obecna data to zmien na hardcoded albo nie mozliwe usuniecie
     metadata.append(tuple(("revision", prop.revision)))
     metadata.append(tuple(("subject", prop.subject)))
     metadata.append(tuple(("title", prop.title)))
