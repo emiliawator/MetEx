@@ -54,7 +54,6 @@ class MainWindow(QMainWindow):
         metadata = []
         for i in range(self.tableWidget.rowCount()):
             metadata.append((self.tableWidget.item(i, 0).text(), self.tableWidget.item(i, 1).text()))
-        print(metadata)
         match self.file_type:
             case gui.support.Filetype.IMAGE:
                 errors = backend.images.save(self.file_path, metadata, self.readonly)
@@ -75,6 +74,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Error", message)
         else:
             QMessageBox.information(self, "Info", "Metadata saved.")
+        self.statusBar.showMessage("Metadata saved.", 5000)
         self.metadata = metadata
 
     # loads metadata from self.metadata to self.tableWidget
@@ -101,7 +101,7 @@ class MainWindow(QMainWindow):
         self.metadata = self.original_file_metadata
         self.load_metadata()
         self.load_mode()
-        self.statusBar.showMessage("Changes discarded", 5000)
+        self.statusBar.showMessage("Changes discarded.", 5000)
 
     def are_you_sure(self):
         box = QMessageBox
@@ -143,7 +143,7 @@ class MainWindow(QMainWindow):
                 message += "• " + error + "\n"
             QMessageBox.warning(self, "Error", message)
         self._loadTable()
-        self.statusBar.showMessage("Metadata erased", 5000)
+        self.statusBar.showMessage("Metadata erased.", 5000)
 
     # changes mode between light and dark
     def change_mode(self):
@@ -377,7 +377,7 @@ class MainWindow(QMainWindow):
                 metadata = backend.pptx.read(self.file_path)
                 self.readonly = []
             case gui.support.Filetype.NONE:
-                self.statusBar.showMessage("File format not supported", 5000)
+                self.statusBar.showMessage("File format not supported.", 5000)
                 return
 
         self.tableWidget.setRowCount(len(metadata))
@@ -407,5 +407,5 @@ class MainWindow(QMainWindow):
 
         self.metadata = metadata
         self.load_mode()
-        self.statusBar.showMessage("File loaded", 5000)
+        self.statusBar.showMessage("File loaded.", 5000)
 

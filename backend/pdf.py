@@ -34,7 +34,6 @@ def erase(path):
         writer.add_page(page)
     metadata = reader.metadata
     metadata = [(key, value) for key, value in metadata.items()]
-    print(metadata)
     for key, value in metadata:
         try: writer.add_metadata({key: ''})
         except: errors.append(key)
