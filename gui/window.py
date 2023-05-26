@@ -106,12 +106,13 @@ class MainWindow(QMainWindow):
 
     def are_you_sure(self):
         box = QMessageBox
-        if box.question(self,'', "This operation might be irreversible.\n Do you want to proceed?", box.Yes | box.No) == box.No:
+        if box.question(self, 'Warning', "This operation might be irreversible.\n Do you want to proceed?", box.Yes | box.No) == box.No:
             return False
         return True
 
     # erases all metadata from file
     def erase(self):
+        errors = None
         match self.file_type:
             case gui.support.Filetype.IMAGE:
                 if not self.are_you_sure():

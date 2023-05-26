@@ -8,8 +8,6 @@ def read(path):
         with open(path, 'rb') as image_file:
             exif_image = Image(image_file)
         metadata = exif_image.get_all()
-    elif extension == 'png':
-        raise ValueError("File format not supported")
     else:
         raise ValueError("File format not supported")
     metadata = [(key, str(value)) for key, value in metadata.items()]
