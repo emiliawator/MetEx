@@ -73,6 +73,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Error", message)
         else:
             QMessageBox.information(self, "Info", "Metadata saved.")
+        self.statusBar.showMessage("Metadata saved.", 5000)
         self.metadata = metadata
 
     # loads metadata from self.metadata to self.tableWidget
@@ -141,7 +142,7 @@ class MainWindow(QMainWindow):
                 message += "• " + error + "\n"
             QMessageBox.warning(self, "Error", message)
         self._loadTable()
-        self.statusBar.showMessage("Metadata erased", 5000)
+        self.statusBar.showMessage("Metadata erased.", 5000)
 
     # changes mode between light and dark
     def change_mode(self):
@@ -375,7 +376,7 @@ class MainWindow(QMainWindow):
                 metadata = backend.pptx.read(self.file_path)
                 self.readonly = []
             case gui.support.Filetype.NONE:
-                self.statusBar.showMessage("File format not supported", 5000)
+                self.statusBar.showMessage("File format not supported.", 5000)
                 return
 
         self.tableWidget.setRowCount(len(metadata))
@@ -405,5 +406,5 @@ class MainWindow(QMainWindow):
 
         self.metadata = metadata
         self.load_mode()
-        self.statusBar.showMessage("File loaded", 5000)
+        self.statusBar.showMessage("File loaded.", 5000)
 
