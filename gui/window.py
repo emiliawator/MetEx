@@ -41,10 +41,11 @@ class MainWindow(QMainWindow):
             return
         self.menuBar().clear()
         self._createMenuBar()
-        self._checkFileType()
-        if self.file_type is gui.support.Filetype.NONE:
+        filetype = self._checkFileType()
+        if filetype is gui.support.Filetype.NONE:
             QMessageBox.warning(self, "Error", "This file type is not supported")
             return
+        self.file_type = filetype
         self._loadTable()
         self.original_file_metadata = self.metadata
 
@@ -337,19 +338,19 @@ class MainWindow(QMainWindow):
     def _checkFileType(self):
         extension = self.file_path.split(".")[-1]
         if extension in ['jpg', 'jpeg', 'tiff', 'tif']:
-            self.file_type = gui.support.Filetype.IMAGE
+            return gui.support.Filetype.IMAGE
         elif extension == 'pdf':
-            self.file_type = gui.support.Filetype.PDF
+            return gui.support.Filetype.PDF
         elif extension == 'mp3':
-            self.file_type = gui.support.Filetype.AUDIO
+            return gui.support.Filetype.AUDIO
         elif extension == 'docx':
-            self.file_type = gui.support.Filetype.WORD
+            return gui.support.Filetype.WORD
         elif extension == 'xlsx':
-            self.file_type = gui.support.Filetype.EXCEL
+            return gui.support.Filetype.IMAGE
         elif extension == 'pptx':
-            self.file_type = gui.support.Filetype.PPTX
+            return gui.support.Filetype.PPTX
         else:
-            self.file_type = gui.support.Filetype.NONE
+            return gui.support.Filetype.NONE
 
     def _loadTable(self):
         self._createTable()
