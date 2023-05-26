@@ -53,7 +53,6 @@ class MainWindow(QMainWindow):
         metadata = []
         for i in range(self.tableWidget.rowCount()):
             metadata.append((self.tableWidget.item(i, 0).text(), self.tableWidget.item(i, 1).text()))
-        print(metadata)
         match self.file_type:
             case gui.support.Filetype.IMAGE:
                 errors = backend.images.save(self.file_path, metadata, self.readonly)
@@ -100,7 +99,7 @@ class MainWindow(QMainWindow):
         self.metadata = self.original_file_metadata
         self.load_metadata()
         self.load_mode()
-        self.statusBar.showMessage("Changes discarded", 5000)
+        self.statusBar.showMessage("Changes discarded.", 5000)
 
     def are_you_sure(self):
         box = QMessageBox
