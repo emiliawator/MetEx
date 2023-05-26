@@ -72,6 +72,8 @@ class MainWindow(QMainWindow):
             for error in errors:
                 message += "• " + error + "\n"
             QMessageBox.warning(self, "Error", message)
+        else:
+            QMessageBox.information(self, "Info", "Metadata saved.")
         self.metadata = metadata
 
     # loads metadata from self.metadata to self.tableWidget
