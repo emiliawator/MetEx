@@ -36,17 +36,18 @@ class MainWindow(QMainWindow):
 
     # opens file dialog and loads file
     def open(self):
-        self.file_path = QFileDialog.getOpenFileName(self, "Open")[0]
-        if not self.file_path:
+        filepath = QFileDialog.getOpenFileName(self, "Open")[0]
+        if not filepath:
             return
         self.menuBar().clear()
         self._createMenuBar()
-        filetype = self._checkFileType()
+        filetype = self._checkFileType(filepath)
         if filetype is gui.support.Filetype.NONE:
             QMessageBox.warning(self, "Error", "This file type is not supported!")
             self.statusBar.showMessage("File format not supported.", 5000)
             return
         self.file_type = filetype
+        self.file_path = filepath
         self._loadTable()
         self.original_file_metadata = self.metadata
 
@@ -337,8 +338,8 @@ class MainWindow(QMainWindow):
         self.tableWidget.horizontalHeader().setStretchLastSection(True)
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
     
-    def _checkFileType(self):
-        extension = self.file_path.split(".")[-1]
+    def _checkFileType(self, filepath):
+        extension = filepath.split(".")[-1]
         if extension in ['jpg', 'jpeg', 'tiff', 'tif']:
             return gui.support.Filetype.IMAGE
         elif extension == 'pdf':
