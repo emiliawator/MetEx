@@ -43,7 +43,8 @@ class MainWindow(QMainWindow):
         self._createMenuBar()
         filetype = self._checkFileType()
         if filetype is gui.support.Filetype.NONE:
-            QMessageBox.warning(self, "Error", "This file type is not supported")
+            QMessageBox.warning(self, "Error", "This file type is not supported!")
+            self.statusBar.showMessage("File format not supported.", 5000)
             return
         self.file_type = filetype
         self._loadTable()
@@ -377,7 +378,6 @@ class MainWindow(QMainWindow):
                 metadata = backend.pptx.read(self.file_path)
                 self.readonly = []
             case gui.support.Filetype.NONE:
-                self.statusBar.showMessage("File format not supported.", 5000)
                 return
 
         self.tableWidget.setRowCount(len(metadata))
